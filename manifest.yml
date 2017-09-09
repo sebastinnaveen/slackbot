@@ -1,0 +1,4 @@
+applications:
+- name: slackbot
+  instances: 1
+  path: ./target/slackbot.jar

@@ -1,0 +1,11 @@
+language: java
+install: mvn -X clean test install
+sudo: true
+deploy:
+  provider: cloudfoundry
+  api: https://api.run.pivotal.io
+  username: naveen2014redmi@gmail.com
+  password: Techgig1!
+  organization: slackbot
+  space: development
+  
