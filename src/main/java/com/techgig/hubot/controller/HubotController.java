@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import ai.api.AIConfiguration;
 import ai.api.AIDataService;
 import ai.api.AIServiceContext;
@@ -46,9 +48,15 @@ import ai.api.model.AIResponse;
 @RestController
 public class HubotController {
 	HttpURLConnection connection = null;
-	  @RequestMapping("/Slack")
-	    public String slackapi() {
+	  @RequestMapping(value = "/Slackbot", headers="Content-Type=application/x-www-form-urlencoded", method = RequestMethod.POST)
+	    public String slackbot(HttpServletRequest request) {
 	    	   try {
+	    		   
+	    		   // api.ai check
+	    		   
+	    		 //  callApiAi("");
+	    		   
+	    		   
 	    	         // Create connection
 	    	         final URL url = new URL("https://hooks.slack.com/services/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");
 	    	         connection = (HttpURLConnection) url.openConnection();
@@ -59,7 +67,7 @@ public class HubotController {
 	    	         connection.setDoOutput(true);
 
 	    	         final String payload = "payload="
-	    	                 + URLEncoder.encode("{\"channel\":\"#devops\",\"username\":\"Sizzler-DevOps\",\"text\":\"Hubot message from Naveen #devops\",\"icon_emoji\":\":happy:\"}", "UTF-8");
+	    	                 + URLEncoder.encode("{\"channel\":\"#devops\",\"username\":\"Sizzler-DevOps\",\"text\":"+request.getParameter("command")+",\"icon_emoji\":\":happy:\"}", "UTF-8");
 
 	    	         // Send request
 	    	         final DataOutputStream wr = new DataOutputStream(
@@ -92,6 +100,151 @@ public class HubotController {
 	   
 	    
 	}
+	  
+	  
+	  
+	    public String triggerJenkins1() throws ParseException, IOException{
+		  String responsestr,responseOutput="",gson,reqGson="";
+	    	   try {
+	    		   
+	    		   AIConfiguration configuration = new AIConfiguration("1df2a5ba115a4e7d81f2c91396db2a00");
+
+	    		    AIDataService dataService = new AIDataService(configuration);
+ChatInformation ci = new ChatInformation();
+	    		    String resp,email="";
+	    		    
+	    		  boolean accessFlag=false;
+
+	    		          try {
+	    		        	  
+	    		        	  JenkinsServer jenkins=null;
+	    		        	  
+	    		        	  File jsonDir= new File(".");
+	    		        	  System.out.println(jsonDir.getCanonicalPath());
+//	    		        	  
+//	    		        	  
+	    		        	  JsonParser parser = new JsonParser();
+	    		        	  Object obj= parser.parse(jsonDir.getCanonicalPath()+"\\src\\main\\resources\\config.json");
+	    		        	  
+	    		        	  
+	    		        	  JSONObject jsonObject=(JSONObject) obj;
+//	    		        	  
+	    		        	  String jenkinsUrl = (String) jsonObject.get("jenkinsUrl");
+	    		        	  
+	    		        	  JSONObject jsonObject1=(JSONObject)jsonObject.get("job");
+//	    		        	  
+
+	    		        	  String acl = (String) jsonObject.get("acl");
+//	    		        	  
+	    		        	  if(acl !=null) {
+//	    		        		  
+	    		        		  String[] aclArray = acl.split(",");
+	    		        		  
+	    		        		  if(aclArray.length > 0) {
+	    		        			  
+	    		        			  for (int i=0;i<aclArray.length;i++) {
+	    		        				  
+	    		        				  if(email.toLowerCase().equals(aclArray[i].toLowerCase())) {
+	    		        					  accessFlag =true;
+	    		        					  break;
+	    		        				  }
+	    		        			  }
+	    		        		  }
+	    		        		  
+	    		        	  }
+	    		        	  
+	    		        	  
+	    		        	  
+	    		        	  String env="";
+							//String jobName= jsonObject1.get(env).toString().trim();
+							
+							//if(accessFlag) {
+	    		        	  
+	    		        	  //http://192.168.1.7:8080/jenkins/buildByToken/build?job=jenkis.test&token=venkat
+								
+								try {
+									jenkins= new JenkinsServer(new URI("http://192.168.1.7:8080/jenkins/"),"admin","admin");
+								}
+								catch(Exception e) {
+									e.printStackTrace();
+								}
+								
+								Map<String,Job> jobs=jenkins.getJobs();
+								
+								
+								
+								JobWithDetails job = jobs							
+										.get("jenkis.test").details();
+								
+								HashMap <String,String> map = new HashMap<String,String>();
+								
+								map.put("token", "venkat");
+								System.out.println(job.getName());
+								
+								List<Build> list = job.getBuilds();
+								System.out.println(job.getNextBuildNumber());
+								for(int i=0;i<list.size();i++) {
+									System.out.println(list.get(i).getNumber());
+								}
+								JobWithDetails job1 = jenkins.getJob("jenkis.test");
+								
+								String url = "http://192.168.1.7:8080/jenkins/buildByToken/build?job=jenkis.test&token=venkat";
+
+								URL urlObj = new URL(url);
+								HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
+
+								// optional default is GET
+								con.setRequestMethod("GET");
+
+								//add request header
+								con.setRequestProperty("User-Agent", "\"Mozilla/5.0\";");
+
+								int responseCode = con.getResponseCode();
+								System.out.println("responseCode--->"+responseCode);
+								
+						        //QueueReference queueRef = job1.build(map, true);
+
+								//job.build(map);
+								
+								//map.put("mail_id", "sizzlers.hack@gmail.com");
+								//job.build();
+								//job.build(map);
+								
+								
+								
+								ci.setDesc("Deployment Started");
+								ci.setSpeech("Speech from api");
+								ci.setDisplayText(""+job.getNextBuildNumber());
+								ci.setSource(job.getUrl());
+								
+								Gson	gson1 = new Gson();
+								
+								responseOutput=gson1.toJson(ci);
+								
+								
+								
+								
+						//	}
+	    		        	  
+	    		          } catch (Exception ex) {
+	    		            ex.printStackTrace();
+	    		          }
+
+	    		        
+	    	   } catch (Exception e) {
+	    	        e.printStackTrace();
+	    	        return "error--->"+e.getMessage();
+	    	     } finally {
+	    	         if (connection != null) {
+	    	             connection.disconnect();
+	    	         }
+	    	     }
+	        return responseOutput;
+	   
+	    
+	}
+	  
+	  
 	  
 	  @RequestMapping("/apiai")
 	    public String triggerJenkins() throws ParseException, IOException{
@@ -243,8 +396,8 @@ ChatInformation ci = new ChatInformation();
 	}
 	  
 	  
-	  @RequestMapping("/jenkins")
-	    public String triggerjenkins() {
+	  
+	    public String callApiAi(String inputRequest) {
 	    	   try {
 	    		   
 	    		   AIConfiguration configuration = new AIConfiguration("1df2a5ba115a4e7d81f2c91396db2a00");
@@ -256,7 +409,7 @@ ChatInformation ci = new ChatInformation();
 	    		  
 
 	    		          try {
-	    		            AIRequest request = new AIRequest("hi");
+	    		            AIRequest request = new AIRequest(inputRequest);
 	    		            
 	    		            AIServiceContext customContext = AIServiceContextBuilder.buildFromSessionId("566");
 
