@@ -1,14 +1,17 @@
-{ 
-"root":{
-"simpleConf":{
-    "url":"Hello World",
-    "port":12,
-    "aMap":{
-        "key1":"value1",
-        "key2":"value2"
-    },
-    "acl":[
-        "rnramkumar@gmail.com",
-        "value2"
-    ]
-}}}
+
+{
+"name": "sebasmtech",
+"email": "naveen@gmail.com",
+"approvals": {
+"env": ["DEV", "SIT"],
+"app": ["project1,"]
+},
+"pending": {
+"env": ["UAT"],
+"app": ["project2"]
+}
+
+
+}
+
+
